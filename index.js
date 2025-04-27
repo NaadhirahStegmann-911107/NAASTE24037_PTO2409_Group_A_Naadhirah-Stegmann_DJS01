@@ -44,19 +44,68 @@ function validateInputs(params) {
   }
 }
 
-const d2 = d + (vel*time) //calcultes new distance 
-const rf = fbr*time //calculates remaining fuel
-const vel2 = calcNewVel(acc, vel, time) //calculates new velocity based on acceleration
-
-// Pick up an error with how the function below is called and make it robust to such errors
-calcNewVel = (vel, acc, time) => { 
-  return vel + (acc*time)
+/**
+ * Function calculates the new velocity with consistent units
+ * @param {number} initialVelocity  - Initial velocity (m/s)
+ * @param {number} acceleration  - Acceleration (m/s²)
+ * @param {number} time - Time (seconds)
+ * @returns {number} New Velocity in m/s
+ */
+function calculateNewVelocity(initialVelocity, acceleration, time) {
+  return initialVelocity + (acceleration * time);
 }
 
-console.log(`Corrected New Velocity: ${vel2} km/h`);
-console.log(`Corrected New Distance: ${d2} km`);
-console.log(`Corrected Remaining Fuel: ${rf} kg`);
+/**
+ * Function calculates the new distance with consistent units
+ * The result for the distance is not accurate as it does not account for the effect of the acceleration on the distance travelled as it simplifies the equation. The formula should be s = s0 + v0*t + 1/2*a*t^2. By omitting the second term, it creates the assumption that velocity is constant or has no effect. This in future can cause errors in the calculation of the distance travelled. 
+ * @param {number} initialDistance - Initial distance (m)
+ * @param {number} initialVelocity - Initial velocity (m/s)
+ * @param {number} time - Time (seconds)
+ * @returns {number} New distance in meters
+ */
+function calculateNewDistance(initialDistance, initialVelocity, time) {
+  return initialDistance + (initialVelocity * time);
+}
 
+/**
+ * Funntion calculates the remaining fuel
+ * @param {number} initialFuel - Initial fuel (kg)
+ * @param {number} fuelBurnRate - Fuel Burn Rate (kg/s)
+ * @param {number} time - Time (seconds)
+ * @returns {number} Remaining fuel in kg
+ */
+function calculateRemainingFuel(initialFuel, fuelBurnRate, time) {
+  return initialFuel - (fuelBurnRate * time);
+}
+
+try {
+  // Validate all the inputs
+  validateInputs({
+    velocity: initialVelocityInMs,
+    acceleration: acceleration,
+    time: time,
+    distance: initialDistance,
+    fuel: initialFuel,
+    fuelBurnRate: fuelBurnRate
+  });
+ 
+  // Perform calculations
+  const newVelocity = calculateNewVelocity(initialVelocityInMs, acceleration, time);
+  const newDistance = calculateNewDistance(initialDistance, initialVelocityInMs, time);
+  const remainingFuel = calculateRemainingFuel(initialFuel, fuelBurnRate, time);
+
+  // Convert result to the desired units for display
+  const newVelocityInKmh = newVelocity * 3600 /1000; // Convert m/s to km/h
+  const newDistanceInKm = newDistance / 1000; // Converts m to km
+
+  //Display results
+  console.log(`Corrected New Velocity: ${newVelocityInKmh.toFixed(2)} km/h`);
+  console.log(`Corrected New Distance: ${newDistanceInKm.toFixed(2)}. km`);
+  console.log(`Corrected Remaining Fuel: ${remainingFuel.toFixed(2)} kg`);
+
+} catch (error) {
+  console.error(`Error: ${error.message}`)
+}
 
 
 
